@@ -5,6 +5,7 @@ import { useState } from 'react';
 interface CompleteMaintenanceModalProps {
     isOpen: boolean;
     maintenanceId: number | null;
+    assetId?: number;
     onClose: () => void;
     onSuccess: () => void;
 }
@@ -12,6 +13,7 @@ interface CompleteMaintenanceModalProps {
 export default function CompleteMaintenanceModal({
     isOpen,
     maintenanceId,
+    assetId,
     onClose,
     onSuccess,
 }: CompleteMaintenanceModalProps) {
@@ -22,7 +24,7 @@ export default function CompleteMaintenanceModal({
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
 
-    if (!isOpen || !maintenanceId) return null;
+    if (!isOpen || (!maintenanceId && !assetId)) return null;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -46,6 +48,7 @@ export default function CompleteMaintenanceModal({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     maintenance_id: maintenanceId,
+                    asset_id: assetId,
                     action_taken: actionTaken || 'Unit selesai diperbaiki dan normal',
                     final_cost: finalCost ? Number(finalCost) : null,
                     target_status: targetStatus,

@@ -26,15 +26,46 @@ export default function AssetsPage() {
     const [assets, setAssets] = useState<AssetItem[]>([]);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [categoryFilter, setCategoryFilter] = useState('');
+    const [categories, setCategories] = useState<{ id: number, name: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [isImportOpen, setIsImportOpen] = useState(false);
+
+    // Initial load from URL search params
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const status = params.get('status');
+            const q = params.get('q');
+            const category = params.get('category');
+            if (status) setStatusFilter(status);
+            if (q) setSearch(q);
+            if (category) setCategoryFilter(category);
+        }
+
+        // Fetch categories for filter
+        async function fetchCategories() {
+            try {
+                const res = await fetch('/api/categories');
+                const data = await res.json();
+                if (data.success) {
+                    setCategories(data.data);
+                }
+            } catch (err) {
+                console.error('Failed to fetch categories', err);
+            }
+        }
+        fetchCategories();
+    }, []);
+
     const loadAssets = async () => {
         setLoading(true);
         try {
             const params = new URLSearchParams();
             if (search) params.append('q', search);
             if (statusFilter) params.append('status', statusFilter);
+            if (categoryFilter) params.append('category', categoryFilter);
 
             const res = await fetch(`/api/assets?${params.toString()}`);
             const data = await res.json();
@@ -53,7 +84,7 @@ export default function AssetsPage() {
             loadAssets();
         }, 300);
         return () => clearTimeout(timeout);
-    }, [search, statusFilter]);
+    }, [search, statusFilter, categoryFilter]);
 
     return (
         <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -83,6 +114,33 @@ export default function AssetsPage() {
                         <span>+</span> Registrasi Unit Baru
                     </button>
                 </div>
+            </div>
+
+            {/* Category Filter Pills / Cards */}
+            <div className="flex flex-wrap gap-2.5">
+                <button
+                    onClick={() => setCategoryFilter('')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                        !categoryFilter
+                            ? 'bg-blue-600 text-white shadow-blue-200'
+                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'
+                    }`}
+                >
+                    Semua Jenis Aset
+                </button>
+                {categories.map((cat) => (
+                    <button
+                        key={cat.id}
+                        onClick={() => setCategoryFilter(cat.id.toString())}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                            categoryFilter === cat.id.toString()
+                                ? 'bg-blue-600 text-white shadow-blue-200'
+                                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'
+                        }`}
+                    >
+                        {cat.name}
+                    </button>
+                ))}
             </div>
 
             {/* Bar Filter & Pencarian */}

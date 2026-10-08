@@ -173,9 +173,10 @@ export async function POST(request: Request) {
             categoryMap.set(cat.name.toUpperCase().trim(), cat);
         }
 
-        // Kategori cadangan spesifik (NB & PC)
+        // Kategori cadangan spesifik
         const laptopCat = categoryMap.get('NB') || catRes.rows[0];
         const pcCat = categoryMap.get('PC') || catRes.rows[0];
+        const peripheralCat = categoryMap.get('PR') || catRes.rows[0];
 
         // 3. Ambil seluruh asset_tag dan serial_number yang sudah ada di DB
         const existingAssetsRes = await pool.query('SELECT asset_tag, serial_number FROM assets');
@@ -299,6 +300,15 @@ export async function POST(request: Request) {
                     } else {
                         matchedCategory = laptopCat;
                     }
+                } else if (
+                    upperCat.includes('AKSESORIS') ||
+                    upperCat.includes('LAIN') ||
+                    upperCat.includes('FLASHDISK') ||
+                    upperCat.includes('CONNECTOR') ||
+                    upperCat.includes('MOUSE') ||
+                    upperCat.includes('KEYBOARD')
+                ) {
+                    matchedCategory = peripheralCat;
                 } else {
                     // Cari partial match
                     for (const [key, val] of categoryMap.entries()) {

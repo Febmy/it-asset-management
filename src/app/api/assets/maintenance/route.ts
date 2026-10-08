@@ -57,45 +57,48 @@ export async function PATCH(request: Request) {
 
     try {
         const body = await request.json();
-        const { maintenance_id, action_taken, final_cost, target_status, invoice_proof_url } = body;
+        const { maintenance_id, asset_id, action_taken, final_cost, target_status, invoice_proof_url } = body;
 
-        if (!maintenance_id) {
+        if (!maintenance_id && !asset_id) {
             return NextResponse.json(
-                { success: false, message: 'ID Tiket Servis wajib diisi' },
+                { success: false, message: 'ID Tiket Servis atau ID Aset wajib diisi' },
                 { status: 400 }
             );
         }
 
         await client.query('BEGIN');
 
-        // 1. Selesaikan tiket maintenance
-        const updateLog = await client.query(
-            `UPDATE maintenance_logs 
-       SET status = 'completed',
-           completion_date = CURRENT_DATE,
-           action_taken = $1,
-           cost = COALESCE($2, cost),
-           invoice_proof_url = COALESCE($4, invoice_proof_url)
-       WHERE id = $3
-       RETURNING asset_id;`,
-            [action_taken || 'Perbaikan selesai', final_cost ? Number(final_cost) : null, maintenance_id, invoice_proof_url || null]
-        );
-
-        if (updateLog.rows.length === 0) {
-            await client.query('ROLLBACK');
-            return NextResponse.json(
-                { success: false, message: 'Data tiket servis tidak ditemukan' },
-                { status: 404 }
-            );
-        }
-
-        const assetId = updateLog.rows[0].asset_id;
+        let targetAssetId = asset_id;
         const nextStatus = target_status === 'deployed' ? 'deployed' : 'in_stock';
+
+        if (maintenance_id) {
+            // 1. Selesaikan tiket maintenance
+            const updateLog = await client.query(
+                `UPDATE maintenance_logs 
+           SET status = 'completed',
+               completion_date = CURRENT_DATE,
+               action_taken = $1,
+               cost = COALESCE($2, cost),
+               invoice_proof_url = COALESCE($4, invoice_proof_url)
+           WHERE id = $3
+           RETURNING asset_id;`,
+                [action_taken || 'Perbaikan selesai', final_cost ? Number(final_cost) : null, maintenance_id, invoice_proof_url || null]
+            );
+
+            if (updateLog.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return NextResponse.json(
+                    { success: false, message: 'Data tiket servis tidak ditemukan' },
+                    { status: 404 }
+                );
+            }
+            targetAssetId = updateLog.rows[0].asset_id;
+        }
 
         // 2. Sinkronkan status aset fisik
         await client.query(
             `UPDATE assets SET status = $1 WHERE id = $2;`,
-            [nextStatus, assetId]
+            [nextStatus, targetAssetId]
         );
 
         // 3. Jika kembali ke gudang (in_stock), tutup assignment aktif yang lama (bila ada)
@@ -105,7 +108,7 @@ export async function PATCH(request: Request) {
          SET status = 'returned', 
              returned_date = CURRENT_DATE 
          WHERE asset_id = $1 AND status = 'active';`,
-                [assetId]
+                [targetAssetId]
             );
         }
 

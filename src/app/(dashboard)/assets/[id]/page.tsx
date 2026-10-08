@@ -124,6 +124,8 @@ export default function AssetDetailPage() {
 
     const { asset, assignments, maintenance, disposal } = data;
 
+    const activeMaintenance = maintenance.find((m) => m.status === 'in_progress');
+
     return (
         <div className="max-w-6xl mx-auto space-y-6">
             {/* Header Bar */}
@@ -177,6 +179,18 @@ export default function AssetDetailPage() {
                             className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
                             <span>📥</span> Tarik Unit (Check-in)
+                        </button>
+                    )}
+
+                    {asset.status === 'repair' && (
+                        <button
+                            onClick={() => {
+                                setSelectedMaintenanceId(activeMaintenance ? activeMaintenance.id : null);
+                                setIsCompleteModalOpen(true);
+                            }}
+                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                            <span>✅</span> Selesai Perbaikan
                         </button>
                     )}
 
@@ -614,6 +628,7 @@ export default function AssetDetailPage() {
             <CompleteMaintenanceModal
                 isOpen={isCompleteModalOpen}
                 maintenanceId={selectedMaintenanceId}
+                assetId={asset.id}
                 onClose={() => setIsCompleteModalOpen(false)}
                 onSuccess={() => {
                     setIsCompleteModalOpen(false);

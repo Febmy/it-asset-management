@@ -78,29 +78,29 @@ export default function DashboardPage() {
 
             {/* Grid 4 Kartu Metrik Utama */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <Link href="/assets" className="block bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                     <span className="text-xs text-slate-400 font-medium">Total Hardware</span>
                     <p className="text-2xl font-black text-slate-900 mt-1">{counts?.total_assets || 0}</p>
                     <span className="text-[11px] text-slate-500 mt-1 block">Unit terdaftar di sistem</span>
-                </div>
+                </Link>
 
-                <div className="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm bg-blue-50/20">
+                <Link href="/assets?status=deployed" className="block bg-white p-5 rounded-2xl border border-blue-100 shadow-sm bg-blue-50/20 hover:shadow-md transition-shadow cursor-pointer">
                     <span className="text-xs text-blue-600 font-semibold">Aktif Dipakai (Deployed)</span>
                     <p className="text-2xl font-black text-blue-700 mt-1">{counts?.deployed_assets || 0}</p>
                     <span className="text-[11px] text-blue-500 mt-1 block">Dipegang oleh karyawan</span>
-                </div>
+                </Link>
 
-                <div className="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm bg-emerald-50/20">
+                <Link href="/assets?status=in_stock" className="block bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm bg-emerald-50/20 hover:shadow-md transition-shadow cursor-pointer">
                     <span className="text-xs text-emerald-600 font-semibold">Tersedia (In Stock)</span>
                     <p className="text-2xl font-black text-emerald-700 mt-1">{counts?.instock_assets || 0}</p>
                     <span className="text-[11px] text-emerald-500 mt-1 block">Ready di gudang IT</span>
-                </div>
+                </Link>
 
-                <div className="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm bg-amber-50/20">
+                <Link href="/assets?status=repair" className="block bg-white p-5 rounded-2xl border border-amber-100 shadow-sm bg-amber-50/20 hover:shadow-md transition-shadow cursor-pointer">
                     <span className="text-xs text-amber-600 font-semibold">Perbaikan (In Repair)</span>
                     <p className="text-2xl font-black text-amber-700 mt-1">{counts?.repair_assets || 0}</p>
                     <span className="text-[11px] text-amber-600 mt-1 block">Unit dalam kendala/servis</span>
-                </div>
+                </Link>
             </div>
 
             {/* Baris Konten Rinci */}
