@@ -56,7 +56,7 @@ const navItems = [
         ),
     },
     {
-        name: 'Lisensi Software',
+        name: 'Layanan & Lisensi',
         href: '/licenses',
         icon: (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,7 +140,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                                 Asset Manager
                             </span>
                             <span className="text-[10px] text-slate-400 block -mt-0.5">
-                                Enterprise Portal
+                                PT.AKASANET BUMI NUSANTARA
                             </span>
                         </div>
                     </Link>

@@ -494,7 +494,7 @@ export async function POST(request: Request) {
                             const cleanEmailName = item.nama_pemegang
                                 .toLowerCase()
                                 .replace(/[^a-z0-9]/g, '');
-                            const safeEmail = `${cleanEmailName || 'user'}@company.local`;
+                            const safeEmail = `${cleanEmailName || 'user'}@yodu.id`;
 
                             const newUserRes = await client.query(
                                 `INSERT INTO users (employee_id, name, email, department, role, is_active)

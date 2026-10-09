@@ -198,7 +198,7 @@ export default function CreateEmployeeModal({
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="nama.karyawan@company.com"
+                        placeholder="nama.karyawan@yodu.id"
                         required
                         className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
                     />

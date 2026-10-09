@@ -97,8 +97,11 @@ CREATE TABLE IF NOT EXISTS maintenance_logs (
 CREATE TABLE IF NOT EXISTS licenses (
     id SERIAL PRIMARY KEY,
     software_name VARCHAR(150) NOT NULL,
+    category VARCHAR(50) DEFAULT 'Software',
+    provider VARCHAR(100),
     license_key VARCHAR(255),
     total_seats INTEGER DEFAULT 1,
+    billing_cycle VARCHAR(50) DEFAULT 'Tahunan',
     expiry_date DATE,
     cost_per_year NUMERIC(15, 2) DEFAULT 0
 );

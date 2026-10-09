@@ -252,14 +252,14 @@ Saat basis data diinisialisasi melalui skrip `db/seed.sql`, sistem membuat dafta
 
 | NIK / Employee ID | Nama Pengguna | Alamat Email | Departemen / Divisi | Role Sistem | Status | Catatan Penggunaan |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `DIR-0001` | Budi Hartono | `director@company.com` | Executive Board | `director` | Aktif | Pejabat eksekutif & approval disposal |
-| `HIT-0001` | Hendra Wijaya | `head.it@company.com` | Information Technology | `head_it` | Aktif | Kepala departemen IT |
-| `ITM-0001` | Dimas Pratama | `asset.mgmt@company.com` | Information Technology | `it_asset_manager` | Aktif | Petugas utama mutasi aset & BAST |
-| `FIN-0001` | Ratna Sari | `finance@company.com` | Finance | `finance` | Aktif | Peninjau biaya servis & valuasi |
-| `GOV-0001` | Aris Munandar | `it.gov@company.com` | IT Governance | `lead_it_gov` | Aktif | Auditor regulasi, lisensi & sanitasi |
-| `EMP-0001` | Admin IT | `admin.it@company.com` | Information Technology | `super_admin` | Aktif | Akun pemeliharaan sistem |
-| `EMP-0002` | Teknisi Lapangan | `tech@company.com` | Information Technology | `it_technician` | Aktif | Staf pemindai audit fisik di lapangan |
-| `EMP-0142` | Febmy | `febmy@company.com` | Finance | `employee` | Aktif | *Master Karyawan* (pemegang laptop ThinkPad) |
+| `DIR-0001` | Budi Hartono | `director@yodu.id` | Executive Board | `director` | Aktif | Pejabat eksekutif & approval disposal |
+| `HIT-0001` | Hendra Wijaya | `head.it@yodu.id` | Information Technology | `head_it` | Aktif | Kepala departemen IT |
+| `ITM-0001` | Dimas Pratama | `asset.mgmt@yodu.id` | Information Technology | `it_asset_manager` | Aktif | Petugas utama mutasi aset & BAST |
+| `FIN-0001` | Ratna Sari | `finance@yodu.id` | Finance | `finance` | Aktif | Peninjau biaya servis & valuasi |
+| `GOV-0001` | Aris Munandar | `it.gov@yodu.id` | IT Governance | `lead_it_gov` | Aktif | Auditor regulasi, lisensi & sanitasi |
+| `EMP-0001` | Admin IT | `admin.it@yodu.id` | Information Technology | `super_admin` | Aktif | Akun pemeliharaan sistem |
+| `EMP-0002` | Teknisi Lapangan | `tech@yodu.id` | Information Technology | `it_technician` | Aktif | Staf pemindai audit fisik di lapangan |
+| `EMP-0142` | Febmy | `febmy@yodu.id` | Finance | `employee` | Aktif | *Master Karyawan* (pemegang laptop ThinkPad) |
 
 > [!IMPORTANT]
 > Pada instalasi baru dari `db/seed.sql`, kolom `password_hash` akun awal di atas bernilai `NULL`. Sebelum dapat digunakan untuk login ke web portal, akun sistem harus disetel kata sandinya terlebih dahulu (lihat Bagian 8 untuk perintah SQL pembaruan kata sandi awal).
@@ -328,7 +328,7 @@ sequenceDiagram
     "id": 1,
     "employee_id": "ITM-0001",
     "name": "Dimas Pratama",
-    "email": "asset.mgmt@company.com",
+    "email": "asset.mgmt@yodu.id",
     "department": "Information Technology",
     "role": "it_asset_manager",
     "iat": 1728216000,
@@ -472,7 +472,7 @@ Jika administrator terkunci dari portal web:
 UPDATE users 
 SET password_hash = 'a8f12c9b4d3e07129fbc412356789abc:e5a8f4c2910d7a6e1f...', -- Salin hasil dari generator Node.js
     is_active = TRUE 
-WHERE email = 'admin.it@company.com';
+WHERE email = 'admin.it@yodu.id';
 ```
 
 ---
@@ -501,7 +501,7 @@ INSERT INTO users (employee_id, name, email, department, role, password_hash, is
 VALUES (
     'SYS-9999', 
     'Lead DevOps Engineer', 
-    'devops@company.com', 
+    'devops@yodu.id', 
     'Information Technology', 
     'super_admin', 
     '<HASIL_HASH_SCRYPT>', 

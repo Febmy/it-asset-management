@@ -11,8 +11,11 @@ interface CreateLicenseModalProps {
 export default function CreateLicenseModal({ isOpen, onClose, onSuccess }: CreateLicenseModalProps) {
     const [formData, setFormData] = useState({
         software_name: '',
+        category: 'Software',
+        provider: '',
         license_key: '',
         total_seats: '1',
+        billing_cycle: 'Tahunan',
         expiry_date: '',
         cost_per_year: '',
     });
@@ -56,7 +59,7 @@ export default function CreateLicenseModal({ isOpen, onClose, onSuccess }: Creat
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="w-full max-w-md bg-white rounded-2xl p-5 shadow-xl">
                 <div className="flex justify-between items-center border-b pb-3 mb-4">
-                    <h3 className="font-bold text-slate-900 text-sm">Registrasi Lisensi Software</h3>
+                    <h3 className="font-bold text-slate-900 text-sm">Registrasi Layanan & Lisensi Baru</h3>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-lg font-bold">
                         &times;
                     </button>
@@ -71,20 +74,48 @@ export default function CreateLicenseModal({ isOpen, onClose, onSuccess }: Creat
                 <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
                     <div>
                         <label className="block font-medium text-slate-700 mb-1">
-                            Nama Software / Aplikasi <span className="text-rose-500">*</span>
+                            Nama Layanan / Aplikasi <span className="text-rose-500">*</span>
                         </label>
                         <input
                             type="text"
                             required
-                            placeholder="Contoh: Microsoft 365 Business Standard"
+                            placeholder="Contoh: AWS RDS, OpenAI API, Microsoft 365"
                             value={formData.software_name}
                             onChange={(e) => setFormData({ ...formData, software_name: e.target.value })}
                             className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                         />
                     </div>
 
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="block font-medium text-slate-700 mb-1">Kategori <span className="text-rose-500">*</span></label>
+                            <select
+                                value={formData.category}
+                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                            >
+                                <option value="Software">Software</option>
+                                <option value="Cloud Infrastructure">Cloud Infrastructure</option>
+                                <option value="Database">Database</option>
+                                <option value="AI Agent">AI Agent / API</option>
+                                <option value="SaaS">SaaS / Web App</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block font-medium text-slate-700 mb-1">Penyedia (Provider)</label>
+                            <input
+                                type="text"
+                                placeholder="AWS, Azure, OpenAI, dll"
+                                value={formData.provider}
+                                onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
+                                className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                            />
+                        </div>
+                    </div>
+
                     <div>
-                        <label className="block font-medium text-slate-700 mb-1">Kunci Lisensi / Serial Key (Opsional)</label>
+                        <label className="block font-medium text-slate-700 mb-1">API Key / License Key (Opsional)</label>
                         <input
                             type="text"
                             placeholder="XXXXX-XXXXX-XXXXX-XXXXX"
@@ -97,7 +128,35 @@ export default function CreateLicenseModal({ isOpen, onClose, onSuccess }: Creat
                     <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="block font-medium text-slate-700 mb-1">
-                                Kapasitas Kursi / Seats <span className="text-rose-500">*</span>
+                                Siklus Penagihan
+                            </label>
+                            <select
+                                value={formData.billing_cycle}
+                                onChange={(e) => setFormData({ ...formData, billing_cycle: e.target.value })}
+                                className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                            >
+                                <option value="Tahunan">Tahunan</option>
+                                <option value="Bulanan">Bulanan</option>
+                                <option value="Pay-as-you-go">Pay-as-you-go (Usage Based)</option>
+                                <option value="Lifetime">Lifetime (Sekali Bayar)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block font-medium text-slate-700 mb-1">Biaya (IDR)</label>
+                            <input
+                                type="number"
+                                placeholder="Contoh: 1800000"
+                                value={formData.cost_per_year}
+                                onChange={(e) => setFormData({ ...formData, cost_per_year: e.target.value })}
+                                className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="block font-medium text-slate-700 mb-1">
+                                Kapasitas Kursi / Instans
                             </label>
                             <input
                                 type="number"
@@ -109,26 +168,17 @@ export default function CreateLicenseModal({ isOpen, onClose, onSuccess }: Creat
                             />
                         </div>
                         <div>
-                            <label className="block font-medium text-slate-700 mb-1">Biaya per Tahun (IDR)</label>
+                            <label className="block font-medium text-slate-700 mb-1">Tanggal Kedaluwarsa</label>
                             <input
-                                type="number"
-                                placeholder="Contoh: 1800000"
-                                value={formData.cost_per_year}
-                                onChange={(e) => setFormData({ ...formData, cost_per_year: e.target.value })}
+                                type="date"
+                                value={formData.expiry_date}
+                                onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
                                 className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                             />
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block font-medium text-slate-700 mb-1">Tanggal Kedaluwarsa (Renewal)</label>
-                        <input
-                            type="date"
-                            value={formData.expiry_date}
-                            onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
-                            className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                        />
-                    </div>
+
 
                     <div className="flex gap-2 pt-2 border-t">
                         <button

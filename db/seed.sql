@@ -1,13 +1,13 @@
 -- 1. Tambah Akun Sistem Berwenang & Master Karyawan
 INSERT INTO users (employee_id, name, email, department, role, is_active) VALUES 
-('DIR-0001', 'Budi Hartono', 'director@company.com', 'Executive Board', 'director', TRUE),
-('ITM-0001', 'Dimas Pratama', 'asset.mgmt@company.com', 'IT', 'it_asset_manager', TRUE),
-('HIT-0001', 'Hendra Wijaya', 'head.it@company.com', 'IT', 'head_it', TRUE),
-('FIN-0001', 'Ratna Sari', 'finance@company.com', 'Finance', 'finance', TRUE),
-('GOV-0001', 'Aris Munandar', 'it.gov@company.com', 'IT Governance', 'lead_it_gov', TRUE),
-('EMP-0001', 'Admin IT', 'admin.it@company.com', 'IT', 'super_admin', TRUE),
-('EMP-0002', 'Teknisi Lapangan', 'tech@company.com', 'IT', 'it_technician', TRUE),
-('EMP-0142', 'Febmy', 'febmy@company.com', 'Finance', 'employee', TRUE);
+('DIR-0001', 'Budi Hartono', 'director@yodu.id', 'Executive Board', 'director', TRUE),
+('ITM-0001', 'Dimas Pratama', 'asset.mgmt@yodu.id', 'IT', 'it_asset_manager', TRUE),
+('HIT-0001', 'Hendra Wijaya', 'head.it@yodu.id', 'IT', 'head_it', TRUE),
+('FIN-0001', 'Ratna Sari', 'finance@yodu.id', 'Finance', 'finance', TRUE),
+('GOV-0001', 'Aris Munandar', 'it.gov@yodu.id', 'IT Governance', 'lead_it_gov', TRUE),
+('EMP-0001', 'Admin IT', 'admin.it@yodu.id', 'IT', 'super_admin', TRUE),
+('EMP-0002', 'Teknisi Lapangan', 'tech@yodu.id', 'IT', 'it_technician', TRUE),
+('EMP-0142', 'Febmy', 'febmy@yodu.id', 'Finance', 'employee', TRUE);
 
 
 -- 2. Tambah Sample Aset Hardware

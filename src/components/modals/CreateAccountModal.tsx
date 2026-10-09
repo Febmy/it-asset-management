@@ -207,7 +207,7 @@ export default function CreateAccountModal({
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="nama@company.com"
+                            placeholder="nama@yodu.id"
                             required
                             className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />

@@ -123,7 +123,7 @@ export default function PrintLabelsPage() {
                                 {/* Info Teks Stiker */}
                                 <div className="overflow-hidden leading-tight">
                                     <span className="text-[9px] font-bold tracking-widest text-slate-400 uppercase block">
-                                        Property of Company
+                                        Property of PT.AKASANET BUMI NUSANTARA
                                     </span>
                                     <p className="text-xs font-mono font-black text-slate-900 mt-0.5">
                                         {item.asset_tag}

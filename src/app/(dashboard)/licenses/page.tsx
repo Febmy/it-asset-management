@@ -6,8 +6,11 @@ import CreateLicenseModal from '@/components/modals/CreateLicenseModal';
 interface LicenseItem {
     id: number;
     software_name: string;
+    category: string;
+    provider: string | null;
     license_key: string | null;
     total_seats: number;
+    billing_cycle: string;
     expiry_date: string | null;
     cost_per_year: number;
 }
@@ -61,9 +64,9 @@ export default function LicensesPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Manajemen Lisensi Software</h1>
+                    <h1 className="text-2xl font-bold text-slate-900">Manajemen Layanan & Lisensi</h1>
                     <p className="text-xs text-slate-500">
-                        Monitor kuota pemakaian, biaya tahunan, dan renewal lisensi aplikasi
+                        Monitor kuota pemakaian, biaya, dan renewal untuk Software, Database, AWS, AI Agent, dll.
                     </p>
                 </div>
                 <button
@@ -77,8 +80,8 @@ export default function LicensesPage() {
             {/* Ringkasan Biaya & Seats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <span className="text-slate-400 text-xs block font-medium">Total Aplikasi Berlisensi</span>
-                    <p className="text-2xl font-black text-slate-900 mt-1">{licenses.length} Software</p>
+                    <span className="text-slate-400 text-xs block font-medium">Total Layanan Aktif</span>
+                    <p className="text-2xl font-black text-slate-900 mt-1">{licenses.length} Layanan</p>
                 </div>
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                     <span className="text-slate-400 text-xs block font-medium">Total Kapasitas Kursi (Seats)</span>
@@ -98,10 +101,11 @@ export default function LicensesPage() {
                     <table className="w-full text-left text-xs">
                         <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-semibold">
                             <tr>
-                                <th className="py-3.5 px-4">Nama Software</th>
-                                <th className="py-3.5 px-4">Kunci Lisensi / Key</th>
-                                <th className="py-3.5 px-4">Kapasitas (Seats)</th>
-                                <th className="py-3.5 px-4">Biaya / Tahun</th>
+                                <th className="py-3.5 px-4">Nama Layanan</th>
+                                <th className="py-3.5 px-4">Kategori & Provider</th>
+                                <th className="py-3.5 px-4">Key / API</th>
+                                <th className="py-3.5 px-4">Kapasitas</th>
+                                <th className="py-3.5 px-4">Biaya</th>
                                 <th className="py-3.5 px-4">Kedaluwarsa</th>
                                 <th className="py-3.5 px-4 text-center">Status</th>
                                 <th className="py-3.5 px-4 text-center">Aksi</th>
@@ -127,23 +131,30 @@ export default function LicensesPage() {
 
                                     return (
                                         <tr key={item.id} className="hover:bg-slate-50/75 transition-colors">
-                                            <td className="py-3.5 px-4 font-semibold text-slate-900">
-                                                {item.software_name}
+                                            <td className="py-3.5 px-4">
+                                                <div className="font-semibold text-slate-900">{item.software_name}</div>
                                             </td>
-                                            <td className="py-3.5 px-4 font-mono text-slate-500">
+                                            <td className="py-3.5 px-4">
+                                                <div className="font-medium text-slate-700">{item.category}</div>
+                                                {item.provider && (
+                                                    <div className="text-[10px] text-slate-500">{item.provider}</div>
+                                                )}
+                                            </td>
+                                            <td className="py-3.5 px-4 font-mono text-[10px] text-slate-500 truncate max-w-[150px]">
                                                 {item.license_key || (
-                                                    <span className="italic text-slate-400">
-                                                        Subscription / Cloud
-                                                    </span>
+                                                    <span className="italic text-slate-400">N/A</span>
                                                 )}
                                             </td>
                                             <td className="py-3.5 px-4 font-medium text-slate-700">
-                                                {item.total_seats} Seat
+                                                {item.total_seats}
                                             </td>
-                                            <td className="py-3.5 px-4 font-mono font-medium text-slate-800">
-                                                {Number(item.cost_per_year) > 0
-                                                    ? `Rp ${Number(item.cost_per_year).toLocaleString('id-ID')}`
-                                                    : 'Gratis / Open Source'}
+                                            <td className="py-3.5 px-4">
+                                                <div className="font-mono font-medium text-slate-800">
+                                                    {Number(item.cost_per_year) > 0
+                                                        ? `Rp ${Number(item.cost_per_year).toLocaleString('id-ID')}`
+                                                        : 'Gratis'}
+                                                </div>
+                                                <div className="text-[10px] text-slate-500">{item.billing_cycle}</div>
                                             </td>
                                             <td className="py-3.5 px-4">
                                                 {item.expiry_date ? (

@@ -195,7 +195,7 @@ CRON_SECRET_TOKEN=my_cron_secret_token_here
    ```
 
 ### Akun Awal Bawaan (Seed):
-- **Email:** `admin.it@company.com` atau `EMP-0001`
+- **Email:** `admin.it@yodu.id` atau `EMP-0001`
 - **Password:** Sesuai dengan hash pada saat pendaftaran akun via antarmuka `/users`.
 
 ---

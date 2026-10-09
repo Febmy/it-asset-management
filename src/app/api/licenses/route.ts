@@ -11,7 +11,10 @@ export async function GET() {
         license_key,
         total_seats,
         expiry_date,
-        cost_per_year
+        cost_per_year,
+        category,
+        provider,
+        billing_cycle
       FROM licenses
       ORDER BY id DESC;
     `;
@@ -35,7 +38,7 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { software_name, license_key, total_seats, expiry_date, cost_per_year } = body;
+        const { software_name, license_key, total_seats, expiry_date, cost_per_year, category, provider, billing_cycle } = body;
 
         if (!software_name) {
             return NextResponse.json(
@@ -45,8 +48,8 @@ export async function POST(request: Request) {
         }
 
         const query = `
-      INSERT INTO licenses (software_name, license_key, total_seats, expiry_date, cost_per_year)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO licenses (software_name, license_key, total_seats, expiry_date, cost_per_year, category, provider, billing_cycle)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *;
     `;
 
@@ -56,6 +59,9 @@ export async function POST(request: Request) {
             Number(total_seats) || 1,
             expiry_date || null,
             Number(cost_per_year) || 0,
+            category || 'Software',
+            provider ? provider.trim() : null,
+            billing_cycle || 'Tahunan'
         ]);
 
         return NextResponse.json({

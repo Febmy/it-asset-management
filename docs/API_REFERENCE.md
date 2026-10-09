@@ -15,7 +15,7 @@ Melakukan verifikasi kredensial pengguna berwenang (Direktur, IT Asset Manager, 
 - **Request Body:**
   ```json
   {
-    "identifier": "admin.it@company.com", // atau Employee ID: EMP-0001
+    "identifier": "admin.it@yodu.id", // atau Employee ID: EMP-0001
     "password": "Password123!"
   }
   ```
@@ -28,7 +28,7 @@ Melakukan verifikasi kredensial pengguna berwenang (Direktur, IT Asset Manager, 
       "id": 1,
       "employee_id": "EMP-0001",
       "name": "Admin IT",
-      "email": "admin.it@company.com",
+      "email": "admin.it@yodu.id",
       "department": "IT",
       "role": "super_admin"
     }
@@ -49,7 +49,7 @@ Mengambil data pengguna yang sedang login berdasarkan cookie `auth_token`.
       "id": 1,
       "employee_id": "EMP-0001",
       "name": "Admin IT",
-      "email": "admin.it@company.com",
+      "email": "admin.it@yodu.id",
       "department": "IT",
       "role": "super_admin"
     }

@@ -75,7 +75,7 @@ export default function MyAssetsPage() {
                             </span>
                         </div>
                         <p className="text-xs text-slate-500 mt-0.5">
-                            {user?.department || 'Departemen'} • {user?.email || 'email@company.com'}
+                            {user?.department || 'Departemen'} • {user?.email || 'email@yodu.id'}
                         </p>
                     </div>
                 </div>

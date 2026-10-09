@@ -60,7 +60,7 @@ export default function LoginPage() {
                         IT
                     </div>
                     <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-                        IT Asset Management Portal
+                        YODU IT Asset Management
                     </h1>
                     <p className="text-xs text-slate-500">
                         Masuk dengan akun terdaftar untuk mengakses sistem
@@ -84,7 +84,7 @@ export default function LoginPage() {
                             required
                             value={identifier}
                             onChange={(e) => setIdentifier(e.target.value)}
-                            placeholder="admin.it@company.com atau EMP-0001"
+                            placeholder="admin.it@yodu.id atau EMP-0001"
                             className="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-xl bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                             disabled={loading}
                         />
@@ -128,7 +128,7 @@ export default function LoginPage() {
                 {/* Footer */}
                 <div className="pt-2 border-t border-slate-100 text-center">
                     <p className="text-[11px] text-slate-400">
-                        Sistem Inventaris Operasional IT Enterprise v1.0
+                        Sistem Inventaris Operasional IT PT. AKASANET BUMI NUSANTARA v1.0
                     </p>
                 </div>
             </div>
