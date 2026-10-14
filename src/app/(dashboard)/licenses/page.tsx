@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import CreateLicenseModal from '@/components/modals/CreateLicenseModal';
+import { toast } from "sonner";
 
 interface LicenseItem {
     id: number;
@@ -48,10 +49,10 @@ export default function LicensesPage() {
             if (data.success) {
                 fetchLicenses();
             } else {
-                alert(data.message || 'Gagal menghapus lisensi');
+                toast.error(data.message || 'Gagal menghapus lisensi');
             }
         } catch {
-            alert('Terjadi kendala jaringan saat menghapus lisensi');
+            toast.error('Terjadi kendala jaringan saat menghapus lisensi');
         }
     };
 

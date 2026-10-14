@@ -6,10 +6,10 @@ import { z } from 'zod';
 
 const ALLOWED_ROLES: SystemAccountRole[] = [
     'director',
-    'it_asset_manager',
-    'head_it',
     'finance',
+    'it_asset_manager',
     'lead_it_gov',
+    'head_it',
 ];
 
 // Define Zod schemas for user request bodies
@@ -18,7 +18,7 @@ const userCreateSchema = z.object({
     name: z.string().min(1, 'Nama lengkap wajib diisi'),
     email: z.string().email('Email tidak valid'),
     department: z.string().optional(),
-    role: z.enum(['director', 'it_asset_manager', 'head_it', 'finance', 'lead_it_gov'] as const),
+    role: z.enum([...ALLOWED_ROLES] as const),
     password: z.string().min(6, 'Password minimal 6 karakter')
 });
 
@@ -28,10 +28,7 @@ const userUpdateSchema = z.object({
     name: z.string().optional(),
     email: z.string().email('Email tidak valid').optional(),
     department: z.string().optional(),
-    role: z.union([
-        z.enum(['director', 'it_asset_manager', 'head_it', 'finance', 'lead_it_gov'] as const),
-        z.literal('employee')
-    ]).optional(),
+    role: z.enum(["director", "it_asset_manager", "head_it", "finance", "lead_it_gov"] as const).optional(),
     is_active: z.boolean().optional(),
     new_password: z.string().min(6, 'Password minimal 6 karakter').optional()
 });
@@ -124,7 +121,7 @@ export async function POST(request: Request) {
         const validationResult = userCreateSchema.safeParse(body);
         if (!validationResult.success) {
             // Return the first error message for simplicity
-            const errorMessage = validationResult.error.errors[0].message;
+            const errorMessage = validationResult.error.issues[0].message;
             return NextResponse.json(
                 { success: false, message: errorMessage },
                 { status: 400 }
@@ -193,7 +190,7 @@ export async function PUT(request: Request) {
         const validationResult = userUpdateSchema.safeParse(body);
         if (!validationResult.success) {
             // Return the first error message for simplicity
-            const errorMessage = validationResult.error.errors[0].message;
+            const errorMessage = validationResult.error.issues[0].message;
             return NextResponse.json(
                 { success: false, message: errorMessage },
                 { status: 400 }
@@ -210,7 +207,7 @@ export async function PUT(request: Request) {
         }
 
         // Validasi jika role diubah
-        if (role && !ALLOWED_ROLES.includes(role) && role !== 'employee') {
+        if (role && !ALLOWED_ROLES.includes(role)) {
             return NextResponse.json(
                 { success: false, message: `Role tidak valid. Pilihan: ${ALLOWED_ROLES.join(', ')}` },
                 { status: 400 }

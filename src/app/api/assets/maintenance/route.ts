@@ -36,7 +36,7 @@ export async function POST(request: Request) {
         const validationResult = maintenanceCreateSchema.safeParse(body);
         if (!validationResult.success) {
             // Return the first error message for simplicity
-            const errorMessage = validationResult.error.errors[0].message;
+            const errorMessage = validationResult.error.issues[0].message;
             return NextResponse.json(
                 { success: false, message: errorMessage },
                 { status: 400 }
@@ -91,7 +91,7 @@ export async function PATCH(request: Request) {
         const validationResult = maintenanceUpdateSchema.safeParse(body);
         if (!validationResult.success) {
             // Return the first error message for simplicity
-            const errorMessage = validationResult.error.errors[0].message;
+            const errorMessage = validationResult.error.issues[0].message;
             return NextResponse.json(
                 { success: false, message: errorMessage },
                 { status: 400 }

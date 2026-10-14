@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button';
 import CreateAccountModal from '@/components/modals/CreateAccountModal';
 import EditAccountModal from '@/components/modals/EditAccountModal';
 import type { User, SystemAccountRole } from '@/types/user';
+import { toast } from "sonner";
 
 export default function UsersPage() {
     const [users, setUsers] = useState<User[]>([]);
@@ -57,11 +58,11 @@ export default function UsersPage() {
             if (data.success) {
                 fetchUsers();
             } else {
-                alert(data.message || 'Gagal mengubah status akun');
+                toast.error(data.message || 'Gagal mengubah status akun');
             }
         } catch (err) {
             console.error(err);
-            alert('Terjadi kesalahan sistem');
+            toast.error('Terjadi kesalahan sistem');
         } finally {
             setActionLoading(null);
         }

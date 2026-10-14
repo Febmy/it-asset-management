@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
 import CreateDepartmentModal from '@/components/modals/CreateDepartmentModal';
 import EditDepartmentModal from '@/components/modals/EditDepartmentModal';
+import { toast } from "sonner";
 
 interface Department {
     id: number;
@@ -46,7 +47,7 @@ export default function DepartmentsPage() {
     const handleDelete = async (dept: Department) => {
         const memberCount = parseInt(dept.members_count, 10);
         if (memberCount > 0) {
-            alert(
+            toast.error(
                 `Divisi "${dept.name}" masih memiliki ${memberCount} anggota/akun. Pindahkan atau hapus anggota terkait terlebih dahulu sebelum menghapus divisi.`
             );
             return;
@@ -65,11 +66,11 @@ export default function DepartmentsPage() {
             if (data.success) {
                 fetchDepartments();
             } else {
-                alert(data.message || 'Gagal menghapus divisi');
+                toast.error(data.message || 'Gagal menghapus divisi');
             }
         } catch (err) {
             console.error(err);
-            alert('Terjadi kesalahan sistem');
+            toast.error('Terjadi kesalahan sistem');
         } finally {
             setActionLoading(null);
         }
