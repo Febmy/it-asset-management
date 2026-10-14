@@ -1,5 +1,29 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { z } from 'zod';
+
+// Define Zod schemas for maintenance request bodies
+const maintenanceCreateSchema = z.object({
+  asset_id: z.string().min(1, 'ID Aset wajib diisi'),
+  issue_description: z.string().min(1, 'Deskripsi kendala wajib diisi'),
+  vendor_name: z.string().optional(),
+  cost: z.preprocess(
+    (val) => (val === '' || val === undefined ? undefined : Number(val)),
+    z.number().min(0, 'Biaya tidak boleh negatif').optional()
+  )
+});
+
+const maintenanceUpdateSchema = z.object({
+  maintenance_id: z.string().optional(),
+  asset_id: z.string().optional(),
+  action_taken: z.string().optional(),
+  final_cost: z.preprocess(
+    (val) => (val === '' || val === undefined ? undefined : Number(val)),
+    z.number().min(0, 'Biaya tidak boleh negatif').optional()
+  ),
+  target_status: z.enum(['deployed', 'in_stock']).optional(),
+  invoice_proof_url: z.string().url().optional()
+});
 
 // POST: Daftarkan aset ke antrean perbaikan / vendor
 export async function POST(request: Request) {
@@ -7,14 +31,19 @@ export async function POST(request: Request) {
 
     try {
         const body = await request.json();
-        const { asset_id, issue_description, vendor_name, cost } = body;
 
-        if (!asset_id || !issue_description) {
+        // Validate request body using Zod
+        const validationResult = maintenanceCreateSchema.safeParse(body);
+        if (!validationResult.success) {
+            // Return the first error message for simplicity
+            const errorMessage = validationResult.error.errors[0].message;
             return NextResponse.json(
-                { success: false, message: 'ID Aset dan deskripsi kendala wajib diisi' },
+                { success: false, message: errorMessage },
                 { status: 400 }
             );
         }
+
+        const { asset_id, issue_description, vendor_name, cost } = validationResult.data;
 
         await client.query('BEGIN');
 
@@ -23,7 +52,7 @@ export async function POST(request: Request) {
             `INSERT INTO maintenance_logs (asset_id, issue_description, vendor_name, cost, start_date, status)
        VALUES ($1, $2, $3, $4, CURRENT_DATE, 'in_progress')
        RETURNING id;`,
-            [asset_id, issue_description, vendor_name || null, Number(cost) || 0]
+            [asset_id, issue_description, vendor_name || null, cost ?? 0]
         );
 
         // 2. Ubah status aset menjadi 'repair'
@@ -57,8 +86,21 @@ export async function PATCH(request: Request) {
 
     try {
         const body = await request.json();
-        const { maintenance_id, asset_id, action_taken, final_cost, target_status, invoice_proof_url } = body;
 
+        // Validate request body using Zod
+        const validationResult = maintenanceUpdateSchema.safeParse(body);
+        if (!validationResult.success) {
+            // Return the first error message for simplicity
+            const errorMessage = validationResult.error.errors[0].message;
+            return NextResponse.json(
+                { success: false, message: errorMessage },
+                { status: 400 }
+            );
+        }
+
+        const { maintenance_id, asset_id, action_taken, final_cost, target_status, invoice_proof_url } = validationResult.data;
+
+        // At least one of maintenance_id or asset_id must be provided
         if (!maintenance_id && !asset_id) {
             return NextResponse.json(
                 { success: false, message: 'ID Tiket Servis atau ID Aset wajib diisi' },
@@ -74,7 +116,7 @@ export async function PATCH(request: Request) {
         if (maintenance_id) {
             // 1. Selesaikan tiket maintenance
             const updateLog = await client.query(
-                `UPDATE maintenance_logs 
+                `UPDATE maintenance_logs
            SET status = 'completed',
                completion_date = CURRENT_DATE,
                action_taken = $1,
@@ -82,7 +124,7 @@ export async function PATCH(request: Request) {
                invoice_proof_url = COALESCE($4, invoice_proof_url)
            WHERE id = $3
            RETURNING asset_id;`,
-                [action_taken || 'Perbaikan selesai', final_cost ? Number(final_cost) : null, maintenance_id, invoice_proof_url || null]
+                [action_taken || 'Perbaikan selesai', final_cost ?? null, maintenance_id, invoice_proof_url || null]
             );
 
             if (updateLog.rows.length === 0) {
@@ -104,9 +146,9 @@ export async function PATCH(request: Request) {
         // 3. Jika kembali ke gudang (in_stock), tutup assignment aktif yang lama (bila ada)
         if (nextStatus === 'in_stock') {
             await client.query(
-                `UPDATE asset_assignments 
-         SET status = 'returned', 
-             returned_date = CURRENT_DATE 
+                `UPDATE asset_assignments
+         SET status = 'returned',
+             returned_date = CURRENT_DATE
          WHERE asset_id = $1 AND status = 'active';`,
                 [targetAssetId]
             );

@@ -1,28 +1,41 @@
 // src/app/api/assets/checkin/route.ts
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { z } from 'zod';
 
-// PASTIKAN NAMA FUNGSI ADALAH "POST" DENGAN HURUF KAPITAL SEMUA
+// Define Zod schema for checkin request body
+const checkinSchema = z.object({
+  asset_id: z.string().min(1, 'Asset ID wajib diisi'),
+  condition_notes: z.string().optional(),
+  is_damaged: z.boolean().optional(),
+  return_proof_url: z.string().url().optional()
+});
+
 export async function POST(request: Request) {
     const client = await pool.connect();
 
     try {
         const body = await request.json();
-        const { asset_id, condition_notes, is_damaged, return_proof_url } = body;
 
-        if (!asset_id) {
+        // Validate request body using Zod
+        const validationResult = checkinSchema.safeParse(body);
+        if (!validationResult.success) {
+            // Return the first error message for simplicity
+            const errorMessage = validationResult.error.errors[0].message;
             return NextResponse.json(
-                { success: false, message: 'Asset ID wajib diisi' },
+                { success: false, message: errorMessage },
                 { status: 400 }
             );
         }
+
+        const { asset_id, condition_notes, is_damaged, return_proof_url } = validationResult.data;
 
         await client.query('BEGIN');
 
         // 1. Ambil transaksi peminjaman aktif untuk aset ini
         const activeAssignment = await client.query(
-            `SELECT id FROM asset_assignments 
-       WHERE asset_id = $1 AND status = 'active' 
+            `SELECT id FROM asset_assignments
+       WHERE asset_id = $1 AND status = 'active'
        FOR UPDATE`,
             [asset_id]
         );
@@ -40,19 +53,19 @@ export async function POST(request: Request) {
 
         // 2. Perbarui status riwayat penyerahan menjadi returned
         await client.query(
-            `UPDATE asset_assignments 
+            `UPDATE asset_assignments
        SET status = 'returned',
-           returned_date = CURRENT_DATE,
-           condition_notes = CONCAT(COALESCE(condition_notes, ''), ' | Pengembalian: ', $1::text),
-           return_proof_url = COALESCE($3, return_proof_url)
+          returned_date = CURRENT_DATE,
+          condition_notes = CONCAT(COALESCE(condition_notes, ''), ' | Pengembalian: ', $1::text),
+          return_proof_url = COALESCE($3, return_proof_url)
        WHERE id = $2`,
             [condition_notes || 'Kondisi baik/lengkap', assignmentId, return_proof_url || null]
         );
 
         // 3. Kembalikan status aset di master
         await client.query(
-            `UPDATE assets 
-       SET status = $1 
+            `UPDATE assets
+       SET status = $1
        WHERE id = $2`,
             [newAssetStatus, asset_id]
         );

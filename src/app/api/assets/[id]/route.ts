@@ -1,6 +1,20 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import pool from '@/lib/db';
 
+const assetUpdateSchema = z.object({
+  brand: z.string().nullable().optional(),
+  model: z.string().nullable().optional(),
+  serial_number: z.string().nullable().optional(),
+  specs: z.any().nullable().optional(),
+  warranty_expiry: z.string().nullable().optional(),
+  purchase_date: z.string().nullable().optional(),
+  image_url: z.string().nullable().optional(),
+  proof_doc_url: z.string().nullable().optional(),
+  proof_notes: z.string().nullable().optional(),
+});
+
+// GET: ... (unchanged)
 export async function GET(
     request: Request,
     context: { params: Promise<{ id: string }> | { id: string } }
@@ -18,7 +32,7 @@ export async function GET(
     try {
         // 1. Data utama unit aset dengan LEFT JOIN LATERAL
         const assetQuery = `
-      SELECT 
+      SELECT
         a.*,
         c.name AS category_name,
         u.name AS current_user_name,
@@ -48,7 +62,7 @@ export async function GET(
 
         // 2. Riwayat penyerahan unit (Assignment History)
         const assignmentsQuery = `
-      SELECT 
+      SELECT
         asg.id,
         asg.assigned_date,
         asg.returned_date,
@@ -68,7 +82,7 @@ export async function GET(
 
         // 3. Riwayat perbaikan / servis (Maintenance Logs)
         const maintenanceQuery = `
-      SELECT 
+      SELECT
         id,
         issue_description,
         vendor_name,
@@ -86,7 +100,7 @@ export async function GET(
 
         // 4. Data disposal jika ada
         const disposalQuery = `
-      SELECT 
+      SELECT
         d.*,
         u.name AS approved_by_name
       FROM asset_disposals d
@@ -131,11 +145,29 @@ export async function PUT(
 
     try {
         const body = await request.json();
-        const { brand, model, serial_number, specs, warranty_expiry, purchase_date, image_url, proof_doc_url, proof_notes } = body;
+        const validationResult = assetUpdateSchema.safeParse(body);
+        if (!validationResult.success) {
+            return NextResponse.json(
+                { success: false, message: 'Invalid input', errors: validationResult.error.format() },
+                { status: 400 }
+            );
+        }
+
+        const {
+            brand,
+            model,
+            serial_number,
+            specs,
+            warranty_expiry,
+            purchase_date,
+            image_url,
+            proof_doc_url,
+            proof_notes,
+        } = validationResult.data;
 
         const query = `
-      UPDATE assets 
-      SET 
+      UPDATE assets
+      SET
         brand = COALESCE($1, brand),
         model = COALESCE($2, model),
         serial_number = COALESCE($3, serial_number),

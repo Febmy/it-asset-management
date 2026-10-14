@@ -130,7 +130,7 @@ it-asset-management/
 
 ## 👥 Peran Pengguna & Hak Akses (RBAC)
 
-Aplikasi memisahkan secara tegas antara **Akun Login Sistem** dan **Master Karyawan**:
+Aplikasi memisahkan secara tegas antara **Akun Login Sistem** dan **Master Karyawan**. Berikut adalah daftar peran pengguna yang dibuat secara otomatis saat melakukan seeding database menggunakan file `db/seed.sql`:
 
 | Role | Kelompok | Deskripsi & Wewenang |
 | :--- | :--- | :--- |
@@ -145,7 +145,6 @@ Aplikasi memisahkan secara tegas antara **Akun Login Sistem** dan **Master Karya
 
 ---
 
-## 📋 Prasyarat Sistem
 
 Sebelum menjalankan aplikasi, pastikan komputer/server Anda telah terpasang:
 - **Node.js** versi 20.x atau 22.x LTS
@@ -201,6 +200,8 @@ CRON_SECRET_TOKEN=my_cron_secret_token_here
 ---
 
 ## 💻 Panduan Instalasi & Menjalankan
+
+Sebelum menjalankan aplikasi, pastikan Anda telah menyelesaikan [Inisialisasi & Seeding Database](#-inisialisasi--seeding-database).
 
 ### 1. Instalasi Dependensi
 ```bash

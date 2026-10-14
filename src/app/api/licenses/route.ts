@@ -1,11 +1,30 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { z } from 'zod';
+
+// Define Zod schema for license creation request body
+const licenseCreateSchema = z.object({
+  software_name: z.string().min(1, 'Nama software wajib diisi'),
+  license_key: z.string().optional(),
+  total_seats: z.preprocess(
+    (val) => (val === '' || val === undefined ? undefined : Number(val)),
+    z.number().int().positive('Total kursi harus berupa angka positif').optional()
+  ),
+  expiry_date: z.string().date('Format tanggal tidak valid').optional(),
+  cost_per_year: z.preprocess(
+    (val) => (val === '' || val === undefined ? undefined : Number(val)),
+    z.number().min(0, 'Biaya tidak boleh negatif').optional()
+  ),
+  category: z.string().optional(),
+  provider: z.string().optional(),
+  billing_cycle: z.enum(['Tahunan', 'Bulanan', 'Triwulanan', 'Semesteran']).optional()
+});
 
 // GET: Ambil seluruh data lisensi software
 export async function GET() {
     try {
         const query = `
-      SELECT 
+      SELECT
         id,
         software_name,
         license_key,
@@ -38,14 +57,19 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { software_name, license_key, total_seats, expiry_date, cost_per_year, category, provider, billing_cycle } = body;
 
-        if (!software_name) {
+        // Validate request body using Zod
+        const validationResult = licenseCreateSchema.safeParse(body);
+        if (!validationResult.success) {
+            // Return the first error message for simplicity
+            const errorMessage = validationResult.error.errors[0].message;
             return NextResponse.json(
-                { success: false, message: 'Nama software wajib diisi' },
+                { success: false, message: errorMessage },
                 { status: 400 }
             );
         }
+
+        const { software_name, license_key, total_seats, expiry_date, cost_per_year, category, provider, billing_cycle } = validationResult.data;
 
         const query = `
       INSERT INTO licenses (software_name, license_key, total_seats, expiry_date, cost_per_year, category, provider, billing_cycle)
@@ -56,9 +80,9 @@ export async function POST(request: Request) {
         const result = await pool.query(query, [
             software_name.trim(),
             license_key ? license_key.trim() : null,
-            Number(total_seats) || 1,
+            total_seats ?? 1,
             expiry_date || null,
-            Number(cost_per_year) || 0,
+            cost_per_year ?? 0,
             category || 'Software',
             provider ? provider.trim() : null,
             billing_cycle || 'Tahunan'

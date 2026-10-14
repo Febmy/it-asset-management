@@ -1,5 +1,19 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import pool from '@/lib/db';
+
+const assetCreationSchema = z.object({
+  asset_tag: z.string().trim().min(1, 'Asset tag is required'),
+  category_id: z.string().trim().min(1, 'Category is required'),
+  serial_number: z.string().trim().min(1, 'Serial number is required'),
+  brand: z.string().trim().min(1, 'Brand is required'),
+  model: z.string().trim().min(1, 'Model is required'),
+  specs: z.any().optional(),
+  warranty_expiry: z.string().trim().optional(),
+  purchase_date: z.string().trim().optional(),
+  image_url: z.string().url().optional(),
+  proof_doc_url: z.string().url().optional(),
+});
 
 // GET: Ambil daftar seluruh aset dengan filter & pencarian
 export async function GET(request: Request) {
@@ -10,7 +24,7 @@ export async function GET(request: Request) {
 
     try {
         let query = `
-      SELECT 
+      SELECT
         a.id,
         a.asset_tag,
         a.serial_number,
@@ -42,8 +56,8 @@ export async function GET(request: Request) {
 
         if (search.trim()) {
             query += ` AND (
-        a.asset_tag ILIKE $${paramIndex} OR 
-        a.serial_number ILIKE $${paramIndex} OR 
+        a.asset_tag ILIKE $${paramIndex} OR
+        a.serial_number ILIKE $${paramIndex} OR
         a.model ILIKE $${paramIndex} OR
         u.name ILIKE $${paramIndex}
       )`;
@@ -84,6 +98,14 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
+        const validationResult = assetCreationSchema.safeParse(body);
+        if (!validationResult.success) {
+            return NextResponse.json(
+                { success: false, message: 'Invalid input', errors: validationResult.error.format() },
+                { status: 400 }
+            );
+        }
+
         const {
             asset_tag,
             category_id,
@@ -95,25 +117,18 @@ export async function POST(request: Request) {
             purchase_date,
             image_url,
             proof_doc_url,
-        } = body;
-
-        if (!asset_tag || !serial_number || !brand || !model || !category_id) {
-            return NextResponse.json(
-                { success: false, message: 'Semua kolom wajib harus diisi' },
-                { status: 400 }
-            );
-        }
+        } = validationResult.data;
 
         const query = `
       INSERT INTO assets (
-        asset_tag, 
-        category_id, 
-        serial_number, 
-        brand, 
-        model, 
-        specs, 
-        warranty_expiry, 
-        purchase_date, 
+        asset_tag,
+        category_id,
+        serial_number,
+        brand,
+        model,
+        specs,
+        warranty_expiry,
+        purchase_date,
         image_url,
         proof_doc_url,
         status
@@ -122,11 +137,11 @@ export async function POST(request: Request) {
     `;
 
         const result = await pool.query(query, [
-            asset_tag.trim(),
+            asset_tag,
             Number(category_id),
-            serial_number.trim(),
-            brand.trim(),
-            model.trim(),
+            serial_number,
+            brand,
+            model,
             specs ? JSON.stringify(specs) : null,
             warranty_expiry || null,
             purchase_date || null,

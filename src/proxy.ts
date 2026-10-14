@@ -6,10 +6,39 @@ const JWT_SECRET = new TextEncoder().encode(
     process.env.JWT_SECRET || 'it_asset_management_jwt_super_secret_key_32_characters_minimum'
 );
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const token = request.cookies.get('auth_token')?.value;
     const pathname = request.nextUrl.pathname;
 
+    // Handle API routes
+    if (pathname.startsWith('/api/')) {
+        // Allow /api/auth/login to bypass authentication
+        if (pathname === '/api/auth/login') {
+            return NextResponse.next();
+        }
+
+        // For all other API routes, require authentication
+        let isAuthenticated = false;
+        if (token) {
+            try {
+                await jwtVerify(token, JWT_SECRET);
+                isAuthenticated = true;
+            } catch {
+                isAuthenticated = false;
+            }
+        }
+
+        if (!isAuthenticated) {
+            return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        return NextResponse.next();
+    }
+
+    // Handle non-API routes (existing logic for web pages)
     let isAuthenticated = false;
     if (token) {
         try {
@@ -44,6 +73,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
+        '/((?!_next/static|_next/image|favicon.ico).*)',
     ],
 };

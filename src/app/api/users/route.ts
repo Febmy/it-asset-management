@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { hashPassword, getSession } from '@/lib/auth';
 import type { SystemAccountRole } from '@/types/user';
+import { z } from 'zod';
 
 const ALLOWED_ROLES: SystemAccountRole[] = [
     'director',
@@ -11,6 +12,30 @@ const ALLOWED_ROLES: SystemAccountRole[] = [
     'lead_it_gov',
 ];
 
+// Define Zod schemas for user request bodies
+const userCreateSchema = z.object({
+    employee_id: z.string().min(1, 'ID Akun / NIK wajib diisi'),
+    name: z.string().min(1, 'Nama lengkap wajib diisi'),
+    email: z.string().email('Email tidak valid'),
+    department: z.string().optional(),
+    role: z.enum(['director', 'it_asset_manager', 'head_it', 'finance', 'lead_it_gov'] as const),
+    password: z.string().min(6, 'Password minimal 6 karakter')
+});
+
+const userUpdateSchema = z.object({
+    id: z.string().min(1, 'User ID wajib disertakan'),
+    employee_id: z.string().optional(),
+    name: z.string().optional(),
+    email: z.string().email('Email tidak valid').optional(),
+    department: z.string().optional(),
+    role: z.union([
+        z.enum(['director', 'it_asset_manager', 'head_it', 'finance', 'lead_it_gov'] as const),
+        z.literal('employee')
+    ]).optional(),
+    is_active: z.boolean().optional(),
+    new_password: z.string().min(6, 'Password minimal 6 karakter').optional()
+});
+
 // GET /api/users
 export async function GET(request: Request) {
     try {
@@ -19,14 +44,14 @@ export async function GET(request: Request) {
         const search = searchParams.get('search')?.trim();
 
         let query = `
-            SELECT 
-                u.id, 
-                u.employee_id, 
-                u.name, 
-                u.email, 
-                u.department, 
-                u.role, 
-                u.is_active, 
+            SELECT
+                u.id,
+                u.employee_id,
+                u.name,
+                u.email,
+                u.department,
+                u.role,
+                u.is_active,
                 u.created_at,
                 (u.password_hash IS NOT NULL) as has_password,
                 COUNT(DISTINCT a.id) as assigned_assets_count
@@ -94,47 +119,19 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
-        const { employee_id, name, email, department, role, password } = body;
 
-        // Validasi input wajib
-        if (!employee_id || !employee_id.trim()) {
+        // Validate request body using Zod
+        const validationResult = userCreateSchema.safeParse(body);
+        if (!validationResult.success) {
+            // Return the first error message for simplicity
+            const errorMessage = validationResult.error.errors[0].message;
             return NextResponse.json(
-                { success: false, message: 'ID Akun / NIK wajib diisi' },
+                { success: false, message: errorMessage },
                 { status: 400 }
             );
         }
 
-        if (!name || !name.trim()) {
-            return NextResponse.json(
-                { success: false, message: 'Nama lengkap wajib diisi' },
-                { status: 400 }
-            );
-        }
-
-        if (!email || !email.trim()) {
-            return NextResponse.json(
-                { success: false, message: 'Email resmi wajib diisi' },
-                { status: 400 }
-            );
-        }
-
-        if (!password || password.length < 6) {
-            return NextResponse.json(
-                { success: false, message: 'Password minimal 6 karakter' },
-                { status: 400 }
-            );
-        }
-
-        // Batasan Role: HANYA role resmi yang diperbolehkan!
-        if (!ALLOWED_ROLES.includes(role)) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: `Role tidak valid. Role yang diizinkan hanya: ${ALLOWED_ROLES.join(', ')}`,
-                },
-                { status: 400 }
-            );
-        }
+        const { employee_id, name, email, department, role, password } = validationResult.data;
 
         // Cek duplikasi email atau employee_id
         const existing = await pool.query(
@@ -191,7 +188,19 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
     try {
         const body = await request.json();
-        const { id, employee_id, name, email, department, role, is_active, new_password } = body;
+
+        // Validate request body using Zod
+        const validationResult = userUpdateSchema.safeParse(body);
+        if (!validationResult.success) {
+            // Return the first error message for simplicity
+            const errorMessage = validationResult.error.errors[0].message;
+            return NextResponse.json(
+                { success: false, message: errorMessage },
+                { status: 400 }
+            );
+        }
+
+        const { id, employee_id, name, email, department, role, is_active, new_password } = validationResult.data;
 
         if (!id) {
             return NextResponse.json(
@@ -211,10 +220,10 @@ export async function PUT(request: Request) {
         // Cek duplikasi email atau employee_id pada pengguna lain
         if (email || employee_id) {
             const checkQuery = `
-                SELECT id, email, employee_id 
-                FROM users 
+                SELECT id, email, employee_id
+                FROM users
                 WHERE (
-                    ($1::text IS NOT NULL AND LOWER(email) = LOWER($1)) OR 
+                    ($1::text IS NOT NULL AND LOWER(email) = LOWER($1)) OR
                     ($2::text IS NOT NULL AND UPPER(employee_id) = UPPER($2))
                 ) AND id != $3
             `;
@@ -240,7 +249,7 @@ export async function PUT(request: Request) {
         }
 
         let updateQuery = `
-            UPDATE users 
+            UPDATE users
             SET name = COALESCE($1, name),
                 email = COALESCE($2, email),
                 employee_id = COALESCE($3, employee_id),
