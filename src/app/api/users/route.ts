@@ -17,17 +17,17 @@ const userCreateSchema = z.object({
     employee_id: z.string().min(1, 'ID Akun / NIK wajib diisi'),
     name: z.string().min(1, 'Nama lengkap wajib diisi'),
     email: z.string().email('Email tidak valid'),
-    department: z.string().optional(),
+    department: z.string().optional().nullable(),
     role: z.enum([...ALLOWED_ROLES] as const),
     password: z.string().min(6, 'Password minimal 6 karakter')
 });
 
 const userUpdateSchema = z.object({
-    id: z.string().min(1, 'User ID wajib disertakan'),
+    id: z.union([z.string(), z.number()]).transform((val) => Number(val)),
     employee_id: z.string().optional(),
     name: z.string().optional(),
     email: z.string().email('Email tidak valid').optional(),
-    department: z.string().optional(),
+    department: z.string().optional().nullable(),
     role: z.enum(["director", "it_asset_manager", "head_it", "finance", "lead_it_gov"] as const).optional(),
     is_active: z.boolean().optional(),
     new_password: z.string().min(6, 'Password minimal 6 karakter').optional()
@@ -290,6 +290,98 @@ export async function PUT(request: Request) {
         console.error('Update user error:', error);
         return NextResponse.json(
             { success: false, message: 'Gagal memperbarui data akun' },
+            { status: 500 }
+        );
+    }
+}
+
+// DELETE /api/users (Hapus akun pengguna secara permanen)
+export async function DELETE(request: Request) {
+    try {
+        const session = await getSession();
+        // Hanya akun berwenang yang bisa menghapus akun
+        if (
+            session &&
+            !['director', 'head_it', 'it_asset_manager', 'super_admin'].includes(session.role)
+        ) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: 'Anda tidak memiliki hak akses untuk menghapus akun sistem.',
+                },
+                { status: 403 }
+            );
+        }
+
+        const { searchParams } = new URL(request.url);
+        let id = searchParams.get('id');
+
+        if (!id) {
+            try {
+                const body = await request.json();
+                id = body?.id;
+            } catch {
+                // ignore json parse error if body is empty
+            }
+        }
+
+        const userId = Number(id);
+        if (!userId || isNaN(userId)) {
+            return NextResponse.json(
+                { success: false, message: 'User ID wajib disertakan dan harus berupa angka valid' },
+                { status: 400 }
+            );
+        }
+
+        // Cek apakah user yang mau dihapus adalah akun yang sedang aktif login
+        if (session && session.id === userId) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: 'Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif digunakan.',
+                },
+                { status: 400 }
+            );
+        }
+
+        // Cek data user yang akan dihapus
+        const userCheck = await pool.query('SELECT id, name, employee_id, role FROM users WHERE id = $1', [userId]);
+        if (userCheck.rows.length === 0) {
+            return NextResponse.json(
+                { success: false, message: 'Akun tidak ditemukan' },
+                { status: 404 }
+            );
+        }
+
+        const targetUser = userCheck.rows[0];
+
+        // Cek apakah user memiliki riwayat peminjaman aset yang masih aktif
+        const assignmentCheck = await pool.query(
+            "SELECT count(*) FROM asset_assignments WHERE user_id = $1 AND status = 'active'",
+            [userId]
+        );
+        const activeCount = parseInt(assignmentCheck.rows[0].count, 10);
+        if (activeCount > 0) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: `Tidak dapat menghapus akun ${targetUser.name} karena masih memiliki ${activeCount} aset aktif. Harap lakukan penarikan (check-in) terlebih dahulu.`,
+                },
+                { status: 400 }
+            );
+        }
+
+        // Hapus akun dari database
+        await pool.query('DELETE FROM users WHERE id = $1', [userId]);
+
+        return NextResponse.json({
+            success: true,
+            message: `Akun ${targetUser.name} (${targetUser.employee_id}) berhasil dihapus secara permanen.`,
+        });
+    } catch (error) {
+        console.error('Delete user error:', error);
+        return NextResponse.json(
+            { success: false, message: 'Terjadi kesalahan sistem saat menghapus akun' },
             { status: 500 }
         );
     }

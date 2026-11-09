@@ -8,7 +8,7 @@ export async function GET() {
 
         let userId = session?.id;
 
-        // Fallback jika belum login di browser: gunakan user karyawan Febmy (id: 1)
+        // Fallback jika belum login di browser: gunakan user karyawan pertama (id: 1)
         if (!userId) {
             const fallbackUser = await pool.query(
                 `SELECT id, name, employee_id, department, email, role 

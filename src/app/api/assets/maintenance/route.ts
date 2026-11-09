@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 // Define Zod schemas for maintenance request bodies
 const maintenanceCreateSchema = z.object({
-  asset_id: z.string().min(1, 'ID Aset wajib diisi'),
+  asset_id: z.union([z.string(), z.number()]).transform((val) => Number(val)),
   issue_description: z.string().min(1, 'Deskripsi kendala wajib diisi'),
   vendor_name: z.string().optional(),
   cost: z.preprocess(
@@ -14,8 +14,8 @@ const maintenanceCreateSchema = z.object({
 });
 
 const maintenanceUpdateSchema = z.object({
-  maintenance_id: z.string().optional(),
-  asset_id: z.string().optional(),
+  maintenance_id: z.union([z.string(), z.number()]).optional(),
+  asset_id: z.union([z.string(), z.number()]).optional(),
   action_taken: z.string().optional(),
   final_cost: z.preprocess(
     (val) => (val === '' || val === undefined ? undefined : Number(val)),

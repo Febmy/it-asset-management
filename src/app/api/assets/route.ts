@@ -3,16 +3,16 @@ import { z } from 'zod';
 import pool from '@/lib/db';
 
 const assetCreationSchema = z.object({
-  asset_tag: z.string().trim().min(1, 'Asset tag is required'),
-  category_id: z.string().trim().min(1, 'Category is required'),
-  serial_number: z.string().trim().min(1, 'Serial number is required'),
-  brand: z.string().trim().min(1, 'Brand is required'),
-  model: z.string().trim().min(1, 'Model is required'),
-  specs: z.any().optional(),
-  warranty_expiry: z.string().trim().optional(),
-  purchase_date: z.string().trim().optional(),
-  image_url: z.string().url().optional(),
-  proof_doc_url: z.string().url().optional(),
+    asset_tag: z.string().trim().min(1, 'Asset tag is required'),
+    category_id: z.union([z.string(), z.number()]).transform((val) => String(val)),
+    serial_number: z.string().trim().min(1, 'Serial number is required'),
+    brand: z.string().trim().min(1, 'Brand is required'),
+    model: z.string().trim().min(1, 'Model is required'),
+    specs: z.any().optional(),
+    warranty_expiry: z.string().trim().optional(),
+    purchase_date: z.string().trim().optional(),
+    image_url: z.string().url().optional(),
+    proof_doc_url: z.string().url().optional(),
 });
 
 // GET: Ambil daftar seluruh aset dengan filter & pencarian

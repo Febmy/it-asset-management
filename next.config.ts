@@ -1,24 +1,35 @@
 import type { NextConfig } from "next";
-import os from "os";
 
-// Deteksi otomatis seluruh IP lokal mesin untuk akses via jaringan LAN
-const networkIps = Object.values(os.networkInterfaces())
-  .flat()
-  .filter((iface): iface is os.NetworkInterfaceInfo => Boolean(iface && iface.family === "IPv4"))
-  .map((iface) => iface.address);
+const securityHeaders = [
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  {
+    key: 'Content-Security-Policy',
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https:",
+      "font-src 'self'",
+      "connect-src 'self'",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join('; '),
+  },
+];
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   allowedDevOrigins: [
-    ...networkIps,
-    "20.22.20.*",
-    "192.168.*.*",
-    "10.*.*.*",
-    "172.16.*.*",
     "localhost",
     "127.0.0.1",
-    "*.trycloudflare.com",
-    "trycloudflare.com",
   ],
+  async headers() {
+    return [{ source: '/:path*', headers: securityHeaders }];
+  },
 };
 
 export default nextConfig;

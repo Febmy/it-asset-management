@@ -502,22 +502,22 @@ export default function ReportsPage() {
                 <div className="grid grid-cols-4 gap-4 text-center text-[10px]">
                     <div>
                         <div className="text-slate-500 mb-14">Dibuat Oleh,</div>
-                        <div className="font-bold underline text-slate-900">Dimas Pratama</div>
+                        <div className="font-bold text-slate-900 font-mono">( .................................... )</div>
                         <div className="text-slate-600">IT Asset Manager</div>
                     </div>
                     <div>
                         <div className="text-slate-500 mb-14">Diperiksa Oleh,</div>
-                        <div className="font-bold underline text-slate-900">Hendra Wijaya</div>
+                        <div className="font-bold text-slate-900 font-mono">( .................................... )</div>
                         <div className="text-slate-600">Head of IT</div>
                     </div>
                     <div>
                         <div className="text-slate-500 mb-14">Diketahui Oleh,</div>
-                        <div className="font-bold underline text-slate-900">Ratna Sari</div>
+                        <div className="font-bold text-slate-900 font-mono">( .................................... )</div>
                         <div className="text-slate-600">Finance Manager</div>
                     </div>
                     <div>
                         <div className="text-slate-500 mb-14">Disetujui Oleh,</div>
-                        <div className="font-bold underline text-slate-900">Budi Hartono</div>
+                        <div className="font-bold text-slate-900 font-mono">( .................................... )</div>
                         <div className="text-slate-600">Direktur Perusahaan</div>
                     </div>
                 </div>

@@ -1,34 +1,24 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { getSession } from '@/lib/auth';
-import pool from '@/lib/db';
+import { meRateLimit } from '@/lib/rate-limiter';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+    const rateLimitResponse = await meRateLimit(request);
+    if (rateLimitResponse) return rateLimitResponse;
     try {
         const session = await getSession();
 
-        if (session) {
-            return NextResponse.json({
-                success: true,
-                data: session,
-            });
+        if (!session) {
+            return NextResponse.json(
+                { success: false, message: 'Unauthenticated' },
+                { status: 401 }
+            );
         }
 
-        // Fallback jika belum login: ambil user admin pertama untuk preview dev
-        const fallbackRes = await pool.query(
-            `SELECT id, employee_id, name, email, department, role FROM users WHERE role = 'super_admin' LIMIT 1;`
-        );
-
-        if (fallbackRes.rows.length > 0) {
-            return NextResponse.json({
-                success: true,
-                data: fallbackRes.rows[0],
-            });
-        }
-
-        return NextResponse.json(
-            { success: false, message: 'Belum terotentikasi' },
-            { status: 401 }
-        );
+        return NextResponse.json({
+            success: true,
+            data: session,
+        });
     } catch (error) {
         console.error('Fetch me error:', error);
         return NextResponse.json(

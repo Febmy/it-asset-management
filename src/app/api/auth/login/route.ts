@@ -1,9 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import pool from '@/lib/db';
 import { signToken, verifyPassword, AUTH_COOKIE_NAME } from '@/lib/auth';
 import type { UserSession } from '@/types/user';
+import { loginRateLimit } from '@/lib/rate-limiter';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+    const rateLimitResponse = await loginRateLimit(request);
+    if (rateLimitResponse) return rateLimitResponse;
     try {
         const body = await request.json();
         const { identifier, password } = body;
@@ -89,7 +92,7 @@ export async function POST(request: Request) {
             value: token,
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: 'strict',
             path: '/',
             maxAge: 60 * 60 * 24 * 7, // 7 hari
         });

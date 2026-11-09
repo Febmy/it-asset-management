@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS maintenance_logs (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 7. Tabel Lisensi Perangkat Lunak (Licenses)
+-- 7. Tabel Lisensi & Langganan Perangkat Lunak (Licenses & Subscriptions)
 CREATE TABLE IF NOT EXISTS licenses (
     id SERIAL PRIMARY KEY,
     software_name VARCHAR(150) NOT NULL,
@@ -102,8 +102,12 @@ CREATE TABLE IF NOT EXISTS licenses (
     license_key VARCHAR(255),
     total_seats INTEGER DEFAULT 1,
     billing_cycle VARCHAR(50) DEFAULT 'Tahunan',
+    start_date DATE,
     expiry_date DATE,
-    cost_per_year NUMERIC(15, 2) DEFAULT 0
+    cost_per_year NUMERIC(15, 2) DEFAULT 0,
+    admin_email VARCHAR(150),
+    auto_renew BOOLEAN DEFAULT FALSE,
+    notes TEXT
 );
 
 -- 8. Tabel Sesi Audit Fisik / Stock Opname (Audit Sessions)

@@ -5,21 +5,35 @@ import type { UserSession } from '@/types/user';
 
 export const AUTH_COOKIE_NAME = 'auth_token';
 
-const JWT_SECRET = new TextEncoder().encode(
-    process.env.JWT_SECRET || 'it_asset_management_jwt_super_secret_key_32_characters_minimum'
-);
+// Lazy evaluation of JWT_SECRET - only evaluated at runtime when auth functions are called
+function getJwtSecret(): Uint8Array {
+    // During Next.js build phase (phase-production-build), return a placeholder
+    // The actual secret will be validated at runtime
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+        return new TextEncoder().encode('build-time-placeholder-secret-min-32-chars');
+    }
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        throw new Error('JWT_SECRET environment variable is required');
+    }
+    if (secret.length < 32) {
+        throw new Error('JWT_SECRET must be at least 32 characters');
+    }
+    return new TextEncoder().encode(secret);
+}
 
 export async function signToken(payload: UserSession): Promise<string> {
     return new SignJWT({ ...payload })
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .setExpirationTime('7d')
-        .sign(JWT_SECRET);
+        .sign(getJwtSecret());
 }
 
 export async function verifyToken(token: string): Promise<UserSession | null> {
     try {
-        const { payload } = await jwtVerify(token, JWT_SECRET);
+        const { payload } = await jwtVerify(token, getJwtSecret());
         return payload as unknown as UserSession;
     } catch {
         return null;

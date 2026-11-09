@@ -252,11 +252,11 @@ Saat basis data diinisialisasi melalui skrip `db/seed.sql`, sistem membuat dafta
 
 | NIK / Employee ID | Nama Pengguna | Alamat Email | Departemen / Divisi | Role Sistem | Status | Catatan Penggunaan |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `DIR-0001` | Budi Hartono | `director@yodu.id` | Executive Board | `director` | Aktif | Pejabat eksekutif & approval disposal |
-| `HIT-0001` | Hendra Wijaya | `head.it@yodu.id` | Information Technology | `head_it` | Aktif | Kepala departemen IT |
-| `ITM-0001` | Dimas Pratama | `asset.mgmt@yodu.id` | Information Technology | `it_asset_manager` | Aktif | Petugas utama mutasi aset & BAST |
-| `FIN-0001` | Ratna Sari | `finance@yodu.id` | Finance | `finance` | Aktif | Peninjau biaya servis & valuasi |
-| `GOV-0001` | Aris Munandar | `it.gov@yodu.id` | IT Governance | `lead_it_gov` | Aktif | Auditor regulasi, lisensi & sanitasi |
+| `DIR-0001` | Director | `director@yodu.id` | Executive Board | `director` | Aktif | Pejabat eksekutif & approval disposal |
+| `HIT-0001` | Head of IT | `head.it@yodu.id` | Information Technology | `head_it` | Aktif | Kepala departemen IT |
+| `ITM-0001` | IT Asset Manager | `asset.mgmt@yodu.id` | Information Technology | `it_asset_manager` | Aktif | Petugas utama mutasi aset & BAST |
+| `FIN-0001` | Finance | `finance@yodu.id` | Finance | `finance` | Aktif | Peninjau biaya servis & valuasi |
+| `GOV-0001` | Lead IT Governance | `it.gov@yodu.id` | IT Governance | `lead_it_gov` | Aktif | Auditor regulasi, lisensi & sanitasi |
 | `EMP-0001` | Admin IT | `admin.it@yodu.id` | Information Technology | `super_admin` | Aktif | Akun pemeliharaan sistem |
 | `EMP-0002` | Teknisi Lapangan | `tech@yodu.id` | Information Technology | `it_technician` | Aktif | Staf pemindai audit fisik di lapangan |
 | `EMP-0142` | Febmy | `febmy@yodu.id` | Finance | `employee` | Aktif | *Master Karyawan* (pemegang laptop ThinkPad) |
@@ -327,7 +327,7 @@ sequenceDiagram
   {
     "id": 1,
     "employee_id": "ITM-0001",
-    "name": "Dimas Pratama",
+    "name": "IT Asset Manager",
     "email": "asset.mgmt@yodu.id",
     "department": "Information Technology",
     "role": "it_asset_manager",

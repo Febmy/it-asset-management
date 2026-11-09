@@ -111,38 +111,53 @@ export async function POST(request: Request) {
         const firstSheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[firstSheetName];
 
-        // 1. Ekstrak data sebagai grid 2D untuk mendeteksi header secara dinamis jika ada baris judul
+        // 1. Ekstrak data sebagai grid 2D
         const rawGrid: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
         if (rawGrid.length === 0) {
             return NextResponse.json(
-                { success: false, message: 'Dokumen tidak memiliki baris data' },
+                { success: false, message: 'Lembar kerja dokumen Excel kosong' },
                 { status: 400 }
             );
         }
 
-        // Cari baris header yang sesungguhnya (scan 15 baris pertama)
-        let headerRowIndex = 0;
-        for (let i = 0; i < Math.min(rawGrid.length, 15); i++) {
-            const row = rawGrid[i];
-            if (Array.isArray(row)) {
-                const rowStr = row.map((cell) => String(cell).toLowerCase()).join(' ');
-                if (
-                    (rowStr.includes('kode aset') ||
-                        rowStr.includes('tag aset') ||
-                        rowStr.includes('asset tag') ||
-                        rowStr.includes('tag id')) &&
-                    (rowStr.includes('nama aset') ||
-                        rowStr.includes('serial') ||
-                        rowStr.includes('merk') ||
-                        rowStr.includes('model'))
-                ) {
-                    headerRowIndex = i;
-                    break;
-                }
+        // Expected headers from the official template
+        const expectedHeaders = [
+            'Tag Aset *',
+            'Kategori (Kode/Nama) *',
+            'Brand / Merk *',
+            'Model / Seri *',
+            'Serial Number *',
+            'Processor (CPU)',
+            'RAM',
+            'Storage',
+            'Tanggal Pembelian (YYYY-MM-DD)',
+            'Batas Garansi (YYYY-MM-DD)',
+            'Status',
+        ];
+
+        // Check if the first row matches the expected headers (strict header validation)
+        const actualHeaderRow = rawGrid[0];
+        if (!Array.isArray(actualHeaderRow) || actualHeaderRow.length !== expectedHeaders.length) {
+            return NextResponse.json(
+                { success: false, message: 'The file format does not match the asset inventory template. Please download and use the official template.' },
+                { status: 400 }
+            );
+        }
+
+        for (let i = 0; i < expectedHeaders.length; i++) {
+            const actualCell = String(actualHeaderRow[i] ?? '').trim();
+            const expectedCell = expectedHeaders[i];
+            if (actualCell !== expectedCell) {
+                return NextResponse.json(
+                    { success: false, message: 'The file format does not match the asset inventory template. Please download and use the official template.' },
+                    { status: 400 }
+                );
             }
         }
 
-        const headerCells = rawGrid[headerRowIndex].map((h: any) => String(h).trim());
+        // Use the first row as header
+        const headerRowIndex = 0;
+        const headerCells = actualHeaderRow.map((h: any) => String(h).trim());
         const rawRows: Record<string, any>[] = [];
 
         for (let r = headerRowIndex + 1; r < rawGrid.length; r++) {

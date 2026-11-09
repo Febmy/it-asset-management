@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 // Define Zod schema for checkin request body
 const checkinSchema = z.object({
-  asset_id: z.string().min(1, 'Asset ID wajib diisi'),
+  asset_id: z.union([z.string(), z.number()]).transform((val) => Number(val)),
   condition_notes: z.string().optional(),
   is_damaged: z.boolean().optional(),
   return_proof_url: z.string().url().optional()

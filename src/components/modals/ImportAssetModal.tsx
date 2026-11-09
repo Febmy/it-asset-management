@@ -264,7 +264,7 @@ export default function ImportAssetModal({ isOpen, onClose, onSuccess }: ImportA
                             <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
                                 <div className="max-h-60 overflow-y-auto">
                                     <table className="w-full text-left text-xs">
-                                        <thead className="bg-slate-100/80 sticky top-0 text-slate-600 font-semibold border-b border-slate-200">
+                                        <thead className="bg-slate-100 sticky top-0 z-10 text-slate-600 font-semibold border-b border-slate-200">
                                             <tr>
                                                 <th className="py-2.5 px-3">Baris</th>
                                                 <th className="py-2.5 px-3">Status Validasi</th>

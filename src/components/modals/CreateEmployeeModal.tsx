@@ -184,7 +184,7 @@ export default function CreateEmployeeModal({
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Contoh: Febmy"
+                        placeholder="Contoh: Budi Santoso"
                         required
                         className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
                     />

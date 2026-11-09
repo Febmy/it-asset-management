@@ -56,6 +56,9 @@ export default function UsersPage() {
             });
             const data = await res.json();
             if (data.success) {
+                toast.success(
+                    `Akun ${user.name} berhasil ${user.is_active ? 'dinonaktifkan' : 'diaktifkan'}`
+                );
                 fetchUsers();
             } else {
                 toast.error(data.message || 'Gagal mengubah status akun');
@@ -63,6 +66,35 @@ export default function UsersPage() {
         } catch (err) {
             console.error(err);
             toast.error('Terjadi kesalahan sistem');
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const deleteUser = async (user: User) => {
+        if (
+            !confirm(
+                `Apakah Anda yakin ingin MENGHAPUS akun ${user.name} (${user.employee_id}) secara permanen?\n\nTindakan ini tidak dapat dibatalkan.`
+            )
+        ) {
+            return;
+        }
+
+        setActionLoading(user.id);
+        try {
+            const res = await fetch(`/api/users?id=${user.id}`, {
+                method: 'DELETE',
+            });
+            const data = await res.json();
+            if (data.success) {
+                toast.success(data.message || `Akun ${user.name} berhasil dihapus`);
+                fetchUsers();
+            } else {
+                toast.error(data.message || 'Gagal menghapus akun');
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Terjadi kesalahan sistem saat menghapus akun');
         } finally {
             setActionLoading(null);
         }
@@ -335,7 +367,7 @@ export default function UsersPage() {
                                                     disabled={actionLoading === user.id}
                                                     className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors border ${
                                                         user.is_active
-                                                            ? 'border-rose-200 text-rose-600 hover:bg-rose-50'
+                                                            ? 'border-amber-200 text-amber-700 hover:bg-amber-50'
                                                             : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'
                                                     }`}
                                                 >
@@ -344,6 +376,14 @@ export default function UsersPage() {
                                                         : user.is_active
                                                         ? 'Nonaktifkan'
                                                         : 'Aktifkan'}
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteUser(user)}
+                                                    disabled={actionLoading === user.id}
+                                                    title="Hapus Akun Permanen"
+                                                    className="px-3 py-1 rounded-lg text-xs font-medium text-rose-600 border border-rose-200 hover:bg-rose-50 transition-colors cursor-pointer"
+                                                >
+                                                    Hapus
                                                 </button>
                                             </div>
                                         </td>

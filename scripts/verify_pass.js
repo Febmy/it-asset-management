@@ -1,11 +1,18 @@
 const crypto = require('crypto');
 
-const hashString = '583fee734d9ca94f3f3101384b9eeae2:16571b213f1efc29ff5c70be712cbc8727a998a3e3d9708b53d46cb6eabc65a7bc719bc6d822e5f291cf11f66267f19c7ffdbf99dee1a7cfbe4a65360141c3b7';
-const [salt, storedHash] = hashString.split(':');
+const password = process.argv[2];
+const storedHash = process.argv[3];
 
-function verifyPassword(password) {
-  const derivedKey = crypto.scryptSync(password, salt, 64).toString('hex');
-  return derivedKey === storedHash;
+if (!password || !storedHash) {
+  console.error('Usage: node scripts/verify_pass.js <password> <stored_hash>');
+  process.exit(1);
 }
 
-console.log('Y0du!123', verifyPassword('Y0du!123'));
+function verifyPassword(password, storedHash) {
+  const [salt, key] = storedHash.split(':');
+  if (!salt || !key) return false;
+  const derivedKey = crypto.scryptSync(password, salt, 64).toString('hex');
+  return derivedKey === key;
+}
+
+console.log(verifyPassword(password, storedHash));

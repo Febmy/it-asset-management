@@ -56,3 +56,20 @@ export async function sendMaintenanceAlert(
     const message = `🔧 <b>Tiket Servis Baru</b>\n\nNomor Tag: <b>${assetTag}</b>\nPerangkat: ${device}\nKendala: ${issue}\n\nStatus: <code>In Repair</code>`;
     return sendTelegramMessage(message);
 }
+
+export async function sendLicenseExpiryAlert(
+    licenses: Array<{ software_name: string; provider: string | null; days_left: number; expiry_date: string }>
+): Promise<boolean> {
+    if (!licenses || licenses.length === 0) return true;
+
+    const list = licenses
+        .map(
+            (l) =>
+                `• <b>${l.software_name}</b> ${l.provider ? `(${l.provider})` : ''}\n  Jatuh tempo: <code>${l.expiry_date}</code> (${l.days_left} hari lagi)`
+        )
+        .join('\n\n');
+
+    const message = `🔔 <b>Peringatan Jatuh Tempo Langganan & Lisensi IT</b>\n\nTerdapat ${licenses.length} langganan/lisensi yang segera berakhir:\n\n${list}\n\n<i>Harap segera koordinasikan perpanjangan (renewal) atau pengajuan dana.</i>`;
+
+    return sendTelegramMessage(message);
+}

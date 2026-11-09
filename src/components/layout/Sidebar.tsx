@@ -100,15 +100,6 @@ const navItems = [
             </svg>
         ),
     },
-    {
-        name: 'Unit Saya (My Assets)',
-        href: '/my-assets',
-        icon: (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-        ),
-    },
 ];
 
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
@@ -125,9 +116,8 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             )}
 
             <aside
-                className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-slate-900 text-slate-300 flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0 ${
-                    isOpen ? 'translate-x-0' : '-translate-x-full'
-                }`}
+                className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-slate-900 text-slate-300 flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'
+                    }`}
             >
                 {/* Brand Header */}
                 <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800/80">
@@ -155,7 +145,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 </div>
 
                 {/* Navigation Links */}
-                <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+                <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto dark-scrollbar">
                     <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                         Menu Utama
                     </div>
@@ -169,11 +159,10 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                                 key={item.href}
                                 href={item.href}
                                 onClick={onClose}
-                                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-colors ${
-                                    isActive
+                                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-colors ${isActive
                                         ? 'bg-blue-600 text-white font-semibold shadow-sm'
                                         : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
-                                }`}
+                                    }`}
                             >
                                 <span className={isActive ? 'text-white' : 'text-slate-400'}>
                                     {item.icon}

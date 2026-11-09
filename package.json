@@ -7,11 +7,14 @@
     "tunnel": "node scripts/tunnel.js",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate": "node scripts/migrate.js"
   },
   "dependencies": {
+    "@types/uuid": "^10.0.0",
     "csv-parser": "^3.2.1",
     "html5-qrcode": "^2.3.8",
+    "ioredis": "^5.4.1",
     "jose": "^6.2.10",
     "next": "16.3.4",
     "pg": "^8.23.0",
@@ -19,6 +22,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "sonner": "^2.0.8",
+    "uuid": "^14.0.3",
     "xlsx": "^0.18.5",
     "zod": "^4.6.7"
   },

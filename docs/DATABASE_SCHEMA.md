@@ -148,16 +148,23 @@ Mencatat pemusnahan atau penghapusan permanen aset dari peredaran aktif.
 ---
 
 ### 2.8. Tabel `licenses`
-Mencatat kepemilikan lisensi perangkat lunak (Software Asset Management).
+Mencatat kepemilikan lisensi dan siklus jangka waktu langganan perangkat lunak / IT service (Software Asset & Subscription Management).
 
 | Kolom | Tipe Data | Keterangan & Batasan |
 | :--- | :--- | :--- |
 | `id` | `SERIAL PRIMARY KEY` | ID unik lisensi |
-| `software_name` | `VARCHAR(150) NOT NULL` | Nama aplikasi (contoh: Microsoft 365, Adobe CC, JetBrains) |
-| `license_key` | `VARCHAR(255)` | Kunci lisensi / Kode registrasi |
-| `total_seats` | `INTEGER DEFAULT 1` | Jumlah kuota pengguna / instalasi berlisensi |
-| `expiry_date` | `DATE` | Tanggal kedaluwarsa masa langganan lisensi |
-| `cost_per_year` | `NUMERIC(15, 2) DEFAULT 0`| Biaya langganan lisensi per tahun (Rp) |
+| `software_name` | `VARCHAR(150) NOT NULL` | Nama aplikasi / layanan (contoh: Microsoft 365, Apple Developer, Adobe CC) |
+| `category` | `VARCHAR(50) DEFAULT 'Software'` | Kategori (Software, Cloud Infrastructure, Database, AI Agent, SaaS, Lainnya) |
+| `provider` | `VARCHAR(100)` | Vendor penyedia (Microsoft, Apple, AWS, OpenAI, dll.) |
+| `license_key` | `VARCHAR(255)` | Kunci lisensi / API Key / Nomor Kontrak |
+| `total_seats` | `INTEGER DEFAULT 1` | Jumlah kuota kursi pengguna / kapasitas instans |
+| `billing_cycle` | `VARCHAR(50) DEFAULT 'Tahunan'` | Siklus penagihan (`Tahunan`, `Bulanan`, `Pay-as-you-go`, `Lifetime`, dll.) |
+| `start_date` | `DATE` | Tanggal awal kontrak / langganan aktif |
+| `expiry_date` | `DATE` | Tanggal kedaluwarsa / jatuh tempo perpanjangan (*renewal*) |
+| `cost_per_year` | `NUMERIC(15, 2) DEFAULT 0`| Biaya langganan (Rp) per siklus / per tahun |
+| `admin_email` | `VARCHAR(150)` | Email akun pendaftar (Apple ID, Microsoft Admin Tenant) |
+| `auto_renew` | `BOOLEAN DEFAULT FALSE` | Indikator perpanjangan otomatis via kartu kredit korporat |
+| `notes` | `TEXT` | Catatan nomor invoice, ID organisasi, atau instruksi perpanjangan |
 
 ---
 
